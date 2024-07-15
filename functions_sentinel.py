@@ -463,3 +463,114 @@ def clear_temp_directory(temp_directory):
         except Exception as e:
             print(f"Failed to remove {f}: {e}")
 #%%
+
+
+#### from run_plot_analysis.py ################################################
+
+def process_and_plot_tif_binary(file_path, output_directory):
+    #%%
+    # Load the TIF file using GDAL
+    dataset = gdal.Open(file_path)
+    band = dataset.GetRasterBand(1)
+    data = band.ReadAsArray()
+
+    # Convert the array to float type
+    data = data.astype(float)
+
+    # Mask the non-classified values (255) by setting them to NaN
+    data[data == 255] = np.nan
+
+    # Define the colors for the plot
+    cmap = plt.matplotlib.colors.ListedColormap(['grey', 'blue'])
+    bounds = [0, 1, 2]
+    norm = plt.matplotlib.colors.BoundaryNorm(bounds, cmap.N)
+
+    # Plot the data
+    plt.figure(figsize=(10, 10))
+    plt.imshow(data, cmap=cmap, norm=norm, interpolation='none')
+    cbar = plt.colorbar(ticks=[0, 1])
+    cbar.ax.set_yticklabels(['Dry Snow, No Snow \n or Patchy Snow (0)', 'Wet Snow (1)'])
+    cbar.set_label('Snow Type')
+
+    # Extract the date from the file name (assuming format SWS_YYYY_MM_DD_HH_MM.tif)
+    base_name = os.path.basename(file_path)
+    date_str = "_".join(base_name.split('_')[1:4])
+
+    # Save the plot
+    output_file_path = os.path.join(output_directory, f"{date_str}_SWS_map.png")
+    plt.title(f'Snow Classification Map for {date_str}')
+    plt.savefig(output_file_path)
+    plt.close()
+
+    # Print completion message
+    print(f"Finished processing {base_name} and saved to {output_file_path}")
+#%%
+
+def process_and_plot_tif_all_classes(file_path, output_directory):
+    #%%
+    # Load the TIF file using GDAL
+    dataset = gdal.Open(file_path)
+    band = dataset.GetRasterBand(1)
+    data = band.ReadAsArray()
+
+    # Replace specific values in the data
+    data[data == 110] = 1
+    data[data == 125] = 0
+    data[data == 200] = 21
+    data[data == 210] = 22
+    data[data == 220] = 23
+    data[data == 230] = 24
+    data[data == 240] = 25
+
+    # Convert the array to float type
+    data = data.astype(float)
+
+    # Mask the non-classified values (255) by setting them to NaN
+    data[data == 255] = np.nan
+
+    # Define the colors for the plot
+    cmap = plt.matplotlib.colors.ListedColormap([
+        'grey', 'blue', 'black', 'cyan', 'green', 'red', 'yellow'
+    ])
+    bounds = [0, 1, 21, 22, 23, 24, 25, 256]
+    norm = plt.matplotlib.colors.BoundaryNorm(bounds, cmap.N)
+
+    # Plot the data
+    plt.figure(figsize=(10, 10))
+    img = plt.imshow(data, cmap=cmap, norm=norm, interpolation='none')
+    cbar = plt.colorbar(img, ticks=[0, 1, 21, 22, 23, 24, 25])
+    cbar.ax.set_yticklabels([
+        'Dry Snow (0)', 'Wet Snow (1)', 'Radar shadow / layover / foreshortening (21)',
+        'Water (22)', 'Forest (23)', 'Urban area (24)', 'Non-mountain areas (25)'
+    ])
+    cbar.set_label('Classification')
+
+    # Extract the date from the file name (assuming format SWS_YYYY_MM_DD_HH_MM.tif)
+    base_name = os.path.basename(file_path)
+    date_str = "_".join(base_name.split('_')[1:4])
+
+    # Save the plot
+    output_file_path = os.path.join(output_directory, f"{date_str}_classification_map.png")
+    plt.title(f'Classification Map for {date_str}')
+    plt.savefig(output_file_path)
+    plt.close()
+
+    # Print completion message
+    print(f"Finished processing {base_name} and saved to {output_file_path}")
+#%%
+
+
+
+def process_directory(input_directory, output_directory, use_binary=False):
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    for filename in os.listdir(input_directory):
+        if filename.endswith('.tif'):
+            file_path = os.path.join(input_directory, filename)
+            if use_binary:
+                
+                process_and_plot_tif_binary(file_path, output_directory)
+            else:
+                process_and_plot_tif_all_classes(file_path, output_directory)
+#%%

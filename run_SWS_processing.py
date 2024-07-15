@@ -24,10 +24,11 @@ import matplotlib.pyplot as plt
 data_folder = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/SWS/SWS_raw_files"
 aoi_path = '/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Shapefiles/shapefile_Zugspitze/03_AOI_shp_zugspitze_reproj_for_code/AOI_zugspitze_reproj_32632.shp' #/shapefile_new_approach/mask_catchments_32632.asc
 mask_file_path = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Shapefiles/shapefile_Zugspitze/04_AOI_shapefile_Zugspitze_Watershed/shapefile_new_approach/mask_catchments_32632.asc"
-local_temp = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/code/temp_new"
+local_temp = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/code/temp"
 log_path = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/code/logfile.txt"
+# Path to df_datestamp where wetsnow sums and means are saved
 analytic_path = "/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/SWS/SWS_analytics"
-output_folder = '//home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/SWS/SWS_all_data_processed/aaa'
+output_folder = '/home/luis/Data/04_Uni/03_Master_Thesis/SNOW/02_data/Sentinel_Data/SWS/SWS_all_data_processed/all_classes'
 
 ### Main Processing
 # Create a dataframe from the directory of zip files
@@ -109,21 +110,38 @@ for day in days:
                 print(f"{current_date} not found in DataFrame index, skipping drop.")
             continue
 
+        # # replace specific values in the clipped data
+        # # Set unwanted classes na and wet and dry snow to binary
+        # data_aoi[data_aoi == 110] = 1
+        # # Dry snow or snow free or patchy snow
+        # data_aoi[data_aoi == 125] = 0
+        # # Radar shadow / layover / foreshortening
+        # data_aoi[data_aoi == 200] = 255
+        # # Water
+        # data_aoi[data_aoi == 210] = 255
+        # # Forest
+        # data_aoi[data_aoi == 220] = 255
+        # # Urban area
+        # data_aoi[data_aoi == 230] = 255
+        # # Non-mountain areas
+        # data_aoi[data_aoi == 240] = 255
+
         # replace specific values in the clipped data
         # Set unwanted classes na and wet and dry snow to binary
         data_aoi[data_aoi == 110] = 1
         # Dry snow or snow free or patchy snow
         data_aoi[data_aoi == 125] = 0
         # Radar shadow / layover / foreshortening
-        data_aoi[data_aoi == 200] = 255
+        data_aoi[data_aoi == 200] = 21
         # Water
-        data_aoi[data_aoi == 210] = 255
+        data_aoi[data_aoi == 210] = 22
         # Forest
-        data_aoi[data_aoi == 220] = 255
+        data_aoi[data_aoi == 220] = 23
         # Urban area
-        data_aoi[data_aoi == 230] = 255
+        data_aoi[data_aoi == 230] = 24
         # Non-mountain areas
-        data_aoi[data_aoi == 240] = 255
+        data_aoi[data_aoi == 240] = 25
+
 
         # Calculate mean and sum of wet snow pixels
         meanwetsnowarea = np.nanmean(data_aoi[data_aoi != 255])
