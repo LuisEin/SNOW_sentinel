@@ -2,13 +2,15 @@ import os
 import glob
 import shutil
 
-start_date = "2020-01-01"
-end_date = "2024-06-25"
+start_date = "2018-01-01"
+end_date = "2024-07-16"
 data_storage = "data"
-local_temp_storage = "./save"
+local_temp_storage = "./temp"
 
 credential_file = "./credentials.txt"
-product_type = "SWS"
+product_type = "FSC"
+
+cloudcover = "10"
 
 tile_list = ['32TPT']
 
@@ -16,8 +18,8 @@ for tile in tile_list:
     print("Searching for tile {}".format(tile))
     callstring = (
         "python ./CLMS_downloader.py {} -query -productType {} -productIdentifier {} "
-        "-obsDateMin {}T00:00:00Z -obsDateMax {}T00:00:00Z".format(
-            local_temp_storage, product_type, tile, start_date, end_date
+        "-obsDateMin {}T00:00:00Z -obsDateMax {}T00:00:00Z -cloudCoverageMax {}".format(
+            local_temp_storage, product_type, tile, start_date, end_date, cloudcover
         )
     )
     os.system(callstring)

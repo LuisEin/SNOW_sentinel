@@ -13,8 +13,8 @@ Creates maps to see the wet snow patterns
 Further this script takes SWS files, with more classes and plots them
 @author: luis
 '''
+from functions_sentinel import process_directory
 
-from functions_sentinel import *
 
 
 # Specify the input directory containing TIF files

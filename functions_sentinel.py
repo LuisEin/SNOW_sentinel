@@ -492,10 +492,17 @@ def process_and_plot_tif_binary(file_path, output_directory):
     cbar.ax.set_yticklabels(['Dry Snow, No Snow \n or Patchy Snow (0)', 'Wet Snow (1)'])
     cbar.set_label('Snow Type')
 
-    # Extract the date from the file name (assuming format SWS_YYYY_MM_DD_HH_MM.tif)
+    # Extract the date from the file name (assuming format SWS_20240521T052708_S1A_T32TPT_V101_1_WSM.tif)
     base_name = os.path.basename(file_path)
-    date_str = "_".join(base_name.split('_')[1:4])
+    parts = base_name.split('_')
 
+    # Split the last part by '.' to remove the extension
+    parts[-1] = parts[-1].split('.')[0]
+
+
+    # Format the date string with hours and minutes
+    date_str = f"{parts[1]}_{parts[2]}_{parts[3]}_{parts[4]}h_{parts[5]}m"
+    
     # Save the plot
     output_file_path = os.path.join(output_directory, f"{date_str}_SWS_map.png")
     plt.title(f'Snow Classification Map for {date_str}')
@@ -545,13 +552,33 @@ def process_and_plot_tif_all_classes(file_path, output_directory):
     ])
     cbar.set_label('Classification')
 
-    # Extract the date from the file name (assuming format SWS_YYYY_MM_DD_HH_MM.tif)
+    # Extract the date from the file name (assuming format SWS_20240521T052708_S1A_T32TPT_V101_1_WSM.tif)
     base_name = os.path.basename(file_path)
-    date_str = "_".join(base_name.split('_')[1:4])
+    print(f"This is the filepath: {file_path}")
+    # Split the base name by underscores
+    parts = base_name.split('_')
+    
+    # Debugging prints to understand the filename structure
+    print(f"Filename parts: {parts}")
+    
+    if len(parts) < 3:
+        print(f"Unexpected filename format: {base_name}")
+        return
 
+    
+    # Extract the date from the file name (assuming format SWS_20240521T052708_S1A_T32TPT_V101_1_WSM.tif)
+    base_name = os.path.basename(file_path)
+    parts = base_name.split('_')
+
+    # Split the last part by '.' to remove the extension
+    parts[-1] = parts[-1].split('.')[0]
+
+
+    # Format the date string with hours and minutes
+    date_str = f"{parts[1]}_{parts[2]}_{parts[3]}_{parts[4]}h_{parts[5]}m"
+    
     # Save the plot
     output_file_path = os.path.join(output_directory, f"{date_str}_classification_map.png")
-    plt.title(f'Classification Map for {date_str}')
     plt.savefig(output_file_path)
     plt.close()
 
